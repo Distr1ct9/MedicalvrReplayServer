@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 API_KEY = os.environ.get("REPLAY_API_KEY", "")
-STORAGE_DIR = Path(os.environ.get("REPLAY_STORAGE_DIR", "/var/data"))
+STORAGE_DIR = Path(os.environ.get("REPLAY_STORAGE_DIR", "./storage"))
 STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI()
