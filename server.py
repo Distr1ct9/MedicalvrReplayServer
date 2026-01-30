@@ -21,8 +21,8 @@ def check_auth(x_api_key: str | None, authorization: str | None):
 
 @app.get("/files")
 def list_files(
-    x_api_key: str | None = Header(default=None, convert_underscores=False),
-    authorization: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    authorization: str | None = Header(default=None, alias="Authorization"),
 ):
     check_auth(x_api_key, authorization)
     files = []
@@ -34,8 +34,8 @@ def list_files(
 async def upload_file(
     input_type: str | None = None,  # Unity calls /upload?input_type=file
     file: UploadFile = File(...),   # multipart field must be named "file"
-    x_api_key: str | None = Header(default=None, convert_underscores=False),
-    authorization: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    authorization: str | None = Header(default=None, alias="Authorization"),
 ):
     check_auth(x_api_key, authorization)
 
@@ -50,8 +50,8 @@ async def upload_file(
 @app.get("/download")
 def download(
     data_key: str,
-    x_api_key: str | None = Header(default=None, convert_underscores=False),
-    authorization: str | None = Header(default=None),
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    authorization: str | None = Header(default=None, alias="Authorization"),
 ):
     check_auth(x_api_key, authorization)
     path = STORAGE_DIR / f"{data_key}.json"
