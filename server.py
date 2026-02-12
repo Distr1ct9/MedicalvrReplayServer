@@ -19,15 +19,38 @@ def check_auth(x_api_key: str | None, authorization: str | None):
     if not API_KEY or provided != API_KEY:
         raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
+# @app.get("/files")
+# def list_files(
+#     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+#     authorization: str | None = Header(default=None, alias="Authorization"),
+# ):
+#     check_auth(x_api_key, authorization)
+#     files = []
+#     for p in STORAGE_DIR.glob("*.json"):
+#         files.append({"file_id": p.stem, "name": p.name, "type": "application/json"})
+#     return {"files": files}
 @app.get("/files")
 def list_files(
     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
     authorization: str | None = Header(default=None, alias="Authorization"),
 ):
     check_auth(x_api_key, authorization)
+
     files = []
-    for p in STORAGE_DIR.glob("*.json"):
-        files.append({"file_id": p.stem, "name": p.name, "type": "application/json"})
+
+    for p in STORAGE_DIR.iterdir():
+        if "__" in p.name:
+            file_id, display_name = p.name.split("__", 1)
+        else:
+            file_id = p.stem
+            display_name = p.name
+
+        files.append({
+            "file_id": file_id,
+            "name": display_name,
+            "type": "application/json"
+        })
+
     return {"files": files}
 
 # @app.post("/upload")
