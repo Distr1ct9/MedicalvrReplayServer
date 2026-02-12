@@ -93,6 +93,19 @@ async def upload_file(
 
     return {"data_key": data_key}
 
+# @app.get("/download")
+# def download(
+#     data_key: str,
+#     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+#     authorization: str | None = Header(default=None, alias="Authorization"),
+# ):
+#     check_auth(x_api_key, authorization)
+#     path = STORAGE_DIR / f"{data_key}.json"
+#     if not path.exists():
+#         raise HTTPException(status_code=404, detail="Not found")
+
+#     # Unity reads raw bytes from response body
+#     return FileResponse(path, media_type="application/json", filename="downloaded_data.json")
 @app.get("/download")
 def download(
     data_key: str,
@@ -100,9 +113,15 @@ def download(
     authorization: str | None = Header(default=None, alias="Authorization"),
 ):
     check_auth(x_api_key, authorization)
-    path = STORAGE_DIR / f"{data_key}.json"
-    if not path.exists():
-        raise HTTPException(status_code=404, detail="Not found")
 
-    # Unity reads raw bytes from response body
-    return FileResponse(path, media_type="application/json", filename="downloaded_data.json")
+    # NEW format: <data_key>__<original_filename>
+    matches = list(STORAGE_DIR.glob(f"{data_key}__*"))
+    if matches:
+        return FileResponse(matches[0], media_type="application/json", filename=matches[0].name)
+
+    # OLD format fallback: <data_key>.json
+    legacy = STORAGE_DIR / f"{data_key}.json"
+    if legacy.exists():
+        return FileResponse(legacy, media_type="application/json", filename=legacy.name)
+
+    raise HTTPException(status_code=404, detail="Not found")
